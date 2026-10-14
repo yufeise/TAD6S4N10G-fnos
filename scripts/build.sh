@@ -30,6 +30,11 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
 GOCACHE="${PROJECT_ROOT}/.cache/go-build" GOTMPDIR="${PROJECT_ROOT}/.cache/go-tmp" \
 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o app/bin/tad-module ./backend/powerguard
 
+# CRPS PMBus 监控板块（crps-module）：与主应用 tad-module 相互独立
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
+GOCACHE="${PROJECT_ROOT}/.cache/go-build" GOTMPDIR="${PROJECT_ROOT}/.cache/go-tmp" \
+go build -trimpath -ldflags "-s -w" -o app/bin/crps-module ./backend/crpsump
+
 GOCACHE="${PROJECT_ROOT}/.cache/go-build" GOTMPDIR="${PROJECT_ROOT}/.cache/go-tmp" \
 go run ./tools/icon-gen -out app/ui/images
 cp app/ui/images/icon_64.png ICON.PNG

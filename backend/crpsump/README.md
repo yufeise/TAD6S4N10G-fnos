@@ -4,6 +4,9 @@
 软件 bitbang I2C 读取电压/电流/功率/温度/转速/状态字，并控制风扇。
 本工程是原 Python 版（psu-monitor-fpk）的 **Go 语言移植**，API 与启动参数完全兼容。
 
+在本仓库（fnOS 电源应用）中，它是独立于主应用 `tad-module` 的板块入口：业务代码位于仓库根的
+`internal/crpsump`，serve 入口在 `backend/crpsump`，与主应用相互独立、不共享配置与状态。
+
 ## 版本
 - **1.0.48**：风扇手动占比范围收紧为 10-100%——前端滑条 min 由 0 改 10、提示文案同步；后端 /api/fan 与 writeFanPct 对 <10 的占比钳制到 10%（光宝固件 10% 以下实测无效）。
 - **1.0.47**：功能精简——移除温控曲线（前端面板/导出、recordCurve 采样、GET /api/curve）；移除 GPIO 配置区两个诊断按钮及其后端（"试0x3A恢复自动" GET /api/fan-test、"写假温度测风扇" GET /api/temp-test），连带删除仅被诊断使用的 writeByte/readByteData/tempToLinear11/hexStr/pval；风扇手动/自动控制、状态读取、耗电统计、GPIO 配置/探测均不受影响。
@@ -14,28 +17,30 @@
 
 ## 目录
 ```
-main.go          后端主程序（~1200 行，唯一源文件）
-go.mod           Go module 定义
-ui/static/       前端三件套（index.html / app.js / styles.css，与原版一致）
+main.go                  后端入口（flag 解析与启动编排）
+../../internal/crpsump/  业务包（log/portio/bus/energy/http 按职责拆分）
+ui/static/               前端三件套（index.html / app.js / styles.css，与原版一致）
 ```
 
 ## 编译
+在仓库根（module `fnos-powerguard`，Go 1.25+）执行：
 ```bash
-go build -ldflags "-s -w" -o psu-monitor-go .   # 本机架构(-s -w 去掉调试符号, 8MB→5.4MB)
-# 飞牛 NAS（x86_64）交叉编译：
-GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o psu-monitor-go .
+go build ./backend/crpsump   # 本机架构
+# 飞牛 NAS（x86_64）交叉编译（scripts/build.sh 已包含 crps-module 目标，产物 app/bin/crps-module）：
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-s -w" -o app/bin/crps-module ./backend/crpsump
 ```
 
 ## 运行
 ```bash
 # TCP 模式（本机调试）
-./psu-monitor-go serve --addr 127.0.0.1 --port 3878 --web-root ui/static
+./crps-module serve --addr 127.0.0.1 --port 3878 --web-root ui/static
 
 # 飞牛网关模式（Unix socket，由 fnOS 网关反代）
-./psu-monitor-go serve --socket /path/psu-monitor.sock \
+./crps-module serve --socket /path/psu-monitor.sock \
   --web-root ui/static --config gpio.json --pid psu-monitor.pid --log psu-monitor.log
 # 耗电统计文件默认与 --config 同目录 (energy.json)，也可用 --energy /path/energy.json 指定
 ```
+`--web-root` 默认值 `ui/static` 相对工作目录解析，即本目录下的 `ui/static`（从 `backend/crpsump` 目录启动时无需调整）。
 
 ## API
 | 方法 | 路径 | 说明 |

@@ -148,3 +148,7 @@ go vet ./...
 ## 重要限制
 
 降低 PL1/PL2 会牺牲部分峰值性能。不同主板 BIOS 可能锁定 RAPL 或 IT87 PWM，若写入被拒绝或回读值不一致，插件会报告错误而不会伪装成功。N100/N150/N305 之外的处理器必须经过单独验证后才能加入支持范围；多风扇控制仍取决于 IT87 驱动是否暴露完整的 RPM/PWM 通道。硬盘仓位与 GPIO 映射针对 TAD6S4N10G 固定硬件设计；后续若支持其他机型，需要单独提供并验证映射表。
+
+## CRPS PMBus 监控板块（crps-module）
+
+`backend/crpsump` 是独立的 CRPS 电源 PMBus 监控服务：通过主板 F_PANEL GPIO 软件 bitbang I2C 读取光宝 PS-2551-5L 的电压/电流/功率/温度/转速/状态字，支持风扇占空比控制与耗电统计，业务代码在 `internal/crpsump`。构建：`GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o app/bin/crps-module ./backend/crpsump`（`scripts/build.sh` 已包含该目标）。运行示例：`crps-module serve --socket /run/crps-monitor.sock --web-root ui/static --config gpio.json`，`--web-root` 默认 `ui/static`（即 `backend/crpsump/ui/static`）。该板块与主应用 `tad-module` 相互独立：各有自己的配置、日志与生命周期，互不依赖。

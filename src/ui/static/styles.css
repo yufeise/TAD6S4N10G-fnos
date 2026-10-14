@@ -1,0 +1,146 @@
+:root {
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --line: #e3e8ef;
+  --txt: #1f2d3d;
+  --sub: #7a8794;
+  --accent: #2563eb;
+  --ok: #16a34a;
+  --warn: #dc2626;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+}
+.app { max-width: 860px; margin: 0 auto; padding: 16px; }
+header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+header h1 { font-size: 20px; margin: 0; }
+.sub { color: var(--sub); font-size: 13px; }
+
+.status-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--line);
+  margin: 14px 0; font-size: 14px;
+}
+.status-banner .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sub); }
+.status-banner.ok .dot { background: var(--ok); }
+.status-banner.err .dot { background: var(--warn); }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 14px 16px;
+}
+.card .label { font-size: 12px; color: var(--sub); margin-bottom: 6px; }
+.card .value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.card .unit { font-size: 13px; color: var(--sub); margin-left: 3px; font-weight: 400; }
+.card .extra { font-size: 12px; color: var(--sub); margin-top: 4px; }
+.pf-bar { height: 8px; background: #e2e8f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.pf-fill { height: 100%; width: 0%; border-radius: 4px; background: #22c55e; transition: width .5s ease, background .5s ease; }
+.card.warn .value { color: var(--warn); }
+
+.fan-panel, .mfr-panel, .gpio-panel {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px; margin-top: 14px;
+}
+.fan-panel h2, .mfr-panel h2, .gpio-panel h2 { font-size: 15px; margin: 0 0 12px; }
+.fan-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.fan-label { color: var(--sub); font-size: 14px; }
+.fan-val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fan-unit { color: var(--sub); font-size: 13px; }
+.fan-mode-row { display: flex; gap: 10px; margin: 4px 0 12px; }
+.mode-btn {
+  flex: 1; padding: 10px 0; border: 1px solid var(--line);
+  background: transparent; color: var(--sub); border-radius: 9px;
+  font-size: 14px; cursor: pointer; transition: all .15s;
+}
+.mode-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.slider-row { display: flex; align-items: center; gap: 12px; }
+.slider-row input[type=range] { flex: 1; accent-color: var(--accent); height: 32px; }
+.pct { font-size: 16px; font-weight: 600; min-width: 44px; text-align: right; }
+.fan-tip { font-size: 12px; color: var(--sub); margin-top: 6px; }
+.fan-msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
+.fan-msg.ok { color: var(--ok); }
+.fan-msg.err { color: var(--warn); }
+
+.mfr { font-size: 14px; line-height: 1.7; color: var(--txt); word-break: break-all; }
+.mfr .k { color: var(--sub); }
+
+.gpio-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.gpio-row label { font-size: 13px; color: var(--sub); }
+.gpio-row select {
+  padding: 8px 10px; font-size: 14px; border: 1px solid var(--line);
+  border-radius: 8px; background: #fff; color: var(--txt); cursor: pointer;
+}
+.gpio-tip { font-size: 12px; color: var(--sub); margin-top: 10px; line-height: 1.6; }
+.gpio-msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
+.gpio-msg.ok { color: var(--ok); }
+.gpio-msg.err { color: var(--warn); }
+
+.curve-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.export-btn {
+  padding: 6px 14px; font-size: 13px; border: 1px solid var(--line);
+  background: transparent; color: var(--accent); border-radius: 8px; cursor: pointer;
+}
+.export-btn:active { background: var(--accent); color: #fff; }
+.curve-tooltip {
+  position: absolute; display: none; pointer-events: none; z-index: 5;
+  background: rgba(17, 24, 39, 0.92); color: #fff; font-size: 12px;
+  padding: 5px 9px; border-radius: 6px; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.curve-tip { font-size: 12px; color: var(--sub); margin-top: 4px; }
+.export-msg { font-size: 12px; margin-top: 6px; min-height: 16px; }
+.export-msg.ok { color: var(--ok); }
+.export-msg.err { color: var(--warn); }
+
+/* ---- 耗电统计 ---- */
+.energy-panel {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px; margin-top: 14px; position: relative;
+}
+.energy-panel h2 { font-size: 15px; margin: 0; }
+.energy-cards {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px; margin-bottom: 12px;
+}
+.ecard { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.ecard .label { font-size: 12px; color: var(--sub); margin-bottom: 4px; }
+.ecard .val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ecard .unit { font-size: 12px; color: var(--sub); margin-left: 3px; font-weight: 400; }
+.ecard .extra { font-size: 11px; color: var(--sub); margin-top: 2px; }
+#energy-chart-canvas { width: 100%; height: 140px; display: block; }
+
+footer { display: flex; justify-content: space-between; margin-top: 14px; color: var(--sub); font-size: 12px; flex-wrap: wrap; gap: 6px; }
+
+/* ---- 日志弹窗 ---- */
+.log-mask {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.log-modal {
+  background: #fff; border-radius: 12px; width: 100%; max-width: 640px;
+  max-height: 80vh; display: flex; flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3); overflow: hidden;
+}
+.log-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-bottom: 1px solid var(--line);
+  font-size: 14px; font-weight: 600;
+}
+.log-actions { display: flex; gap: 8px; }
+.log-body {
+  flex: 1; overflow: auto; margin: 0; padding: 12px 14px;
+  font-size: 12px; line-height: 1.5; white-space: pre-wrap;
+  word-break: break-all; background: #f9fafb;
+  color: #333; font-family: Menlo, Consolas, monospace;
+}

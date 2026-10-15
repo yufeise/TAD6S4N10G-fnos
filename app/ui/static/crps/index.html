@@ -66,7 +66,7 @@
       <button id="mode-auto" class="mode-btn active">电源自动</button>
       <button id="mode-manual" class="mode-btn">手动控制</button>
     </div>
-    <div class="slider-row" id="manual-ctl" style="display:none">
+    <div class="slider-row hidden" id="manual-ctl">
       <input type="range" id="fan-slider" min="10" max="100" step="1" value="10">
       <span class="pct" id="fan-pct">10%</span>
     </div>
@@ -101,7 +101,7 @@
   </footer>
 </div>
 
-<div class="log-mask" id="log-mask" style="display:none">
+<div class="log-mask hidden" id="log-mask">
   <div class="log-modal">
     <div class="log-head">
       <span>运行日志 (CRPS 电源监控)</span>

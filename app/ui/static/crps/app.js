@@ -234,7 +234,7 @@
     // 注意: 自动转速下限随温度变化(低温约2600-2700, 高温固件会钳制在更高值如≥3100),
     // 提示不写死具体转速, 避免误导。其他值(0/0xFFFF/0x00FF)实测无效。
     postFan({ mode: "auto" }, function () {
-      return "已软切回电源自动温控（写 FAN_COMMAND_1=10%），转速交由固件按温度自动调节";
+      return "已切回电源自动温控";
     });
   });
   modeManual.addEventListener("click", function () {

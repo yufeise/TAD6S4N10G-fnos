@@ -127,7 +127,7 @@
     }
     // 风扇转速只显示在风扇控制区(避免与上方参数网格重复)
     $("fan-rpm").textContent = fmt(data.fan, "%.0f");
-    if (data.fan_mode) setModeUI(data.fan_mode);
+    if (data.fan_mode) { lastKnownMode = data.fan_mode; setModeUI(data.fan_mode); }
 
     var ok = data.ok === true;
     var bannerText;
@@ -197,13 +197,18 @@
   var modeManual = $("mode-manual");
   var manualCtl = $("manual-ctl");
   var lastSent = null;
+  var lastKnownMode = null; // 最近一次轮询确认的模式 (POST 失败回滚用)
   var modeGuardUntil = 0; // 用户刚操作模式后的保护期: 期间忽略服务器 fan_mode, 避免快照滞后把按钮拉回旧值跳动
 
-  function setModeUI(mode) {
-    if (Date.now() < modeGuardUntil) return;
+  function applyModeUI(mode) { // 直接应用, 不看保护期 (POST 成功/失败回滚走这里, 立即生效)
     modeAuto.classList.toggle("active", mode === "auto");
     modeManual.classList.toggle("active", mode === "manual");
     manualCtl.style.display = mode === "manual" ? "flex" : "none";
+  }
+
+  function setModeUI(mode) { // 轮询入口: 保护期内忽略快照旧值
+    if (Date.now() < modeGuardUntil) return;
+    applyModeUI(mode);
   }
 
   function postFan(body, doneMsg) {
@@ -218,15 +223,18 @@
       .then(function (d) {
         if (d.ok) {
           msg.className = "ok";
-          setModeUI(d.mode);
+          lastKnownMode = d.mode;
+          applyModeUI(d.mode); // POST 成功立即切按钮, 不受保护期限制
           msg.textContent = doneMsg(d);
         } else {
           msg.className = "err";
+          if (lastKnownMode) applyModeUI(lastKnownMode); // 失败回滚到轮询确认的模式
           msg.textContent = "设置失败: " + (d.error || "未知错误");
         }
       })
       .catch(function (e) {
         msg.className = "err";
+        if (lastKnownMode) applyModeUI(lastKnownMode); // 失败回滚到轮询确认的模式
         msg.textContent = "设置失败: " + e.message;
       });
   }

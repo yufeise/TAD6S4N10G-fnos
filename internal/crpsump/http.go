@@ -353,10 +353,18 @@ func (s *AppServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // APIHandler 供宿主应用 (tad-module) 挂载 CRPS API 子路由:
-// 宿主以 http.StripPrefix("/api/crps", srv.APIHandler()) 挂载, 经 StripPrefix
-// 后路径恢复为 /api/status 等原样路径, 与独立 serve 模式行为一致。
+// 宿主以 mux.Handle("/api/crps/", srv.APIHandler()) 挂载, 本 handler 把
+// 融合挂载路径 /api/crps/<ep> 改写回板块原路由 /api/<ep> 后分发,
+// 与独立 serve 模式行为一致。
 // 融合模式下静态 UI 由宿主的 WebRoot FileServer 提供, 不经过本 handler。
-func (s *AppServer) APIHandler() http.Handler { return s }
+func (s *AppServer) APIHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if p := r.URL.Path; strings.HasPrefix(p, "/api/crps/") {
+			r.URL.Path = "/api/" + strings.TrimPrefix(p, "/api/crps/")
+		}
+		s.ServeHTTP(w, r)
+	})
+}
 
 // ---------------- 启动自检 ----------------
 

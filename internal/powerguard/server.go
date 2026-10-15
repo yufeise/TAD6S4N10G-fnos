@@ -110,8 +110,8 @@ func (s *Server) ListenAndServe() error {
 	mux.HandleFunc("/api/apply", s.handleApply)
 	mux.HandleFunc("/api/restore", s.handleRestore)
 	if s.Crps != nil {
-		// CRPS 板块: /api/crps/status -> StripPrefix -> /api/status (crpsump 原路由)
-		mux.Handle("/api/crps/", http.StripPrefix("/api/crps", s.Crps))
+		// CRPS 板块: handler 内部把 /api/crps/<ep> 改写为板块原路由 /api/<ep>
+		mux.Handle("/api/crps/", s.Crps)
 	}
 	mux.Handle("/", http.FileServer(http.Dir(s.WebRoot)))
 

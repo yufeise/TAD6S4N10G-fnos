@@ -1,4 +1,4 @@
-// CRPS 电源监控 前端逻辑 (融合版: API 走 ../api/crps/)
+// CRPS 电源监控 前端逻辑 (独立版: API 同源相对路径; 融合版副本见 app/ui/static/crps/)
 (function () {
   "use strict";
 
@@ -135,7 +135,7 @@
   }
 
   function poll() {
-    fetch("../api/crps/status")
+    fetch("api/status")
       .then(function (r) { return r.json(); })
       .then(render)
       .catch(function (e) {
@@ -162,7 +162,7 @@
   function postFan(body, doneMsg) {
     msg.className = "";
     msg.textContent = "正在设置…";
-    fetch("../api/crps/fan", {
+    fetch("api/fan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -226,7 +226,7 @@
 
   function loadGpioConfig() {
     if (!sclSel || !sdaSel) return;
-    fetch("../api/crps/config")
+    fetch("api/config")
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !Array.isArray(d.pins)) return;
@@ -261,7 +261,7 @@
     if (!scl || !sda) { gpioMsgShow(false, "请选择针脚"); return; }
     if (scl === sda) { gpioMsgShow(false, "PSCL 与 PSDA 不能是同一根针"); return; }
     gpioMsgShow(true, "正在应用…");
-    fetch("../api/crps/config", {
+    fetch("api/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ scl_pin: scl, sda_pin: sda })
@@ -284,7 +284,7 @@
   if (gpioDetect) gpioDetect.addEventListener("click", function () {
     gpioMsgShow(true, "正在自动探测 Pin19~22…（约几秒，请稍候）");
     gpioDetect.disabled = true;
-    fetch("../api/crps/detect", { method: "POST" })
+    fetch("api/detect", { method: "POST" })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         gpioDetect.disabled = false;
@@ -307,7 +307,7 @@
   // ---- 查看日志(弹窗显示 + 复制) ----
   var dlLog = $("dl-log");
   if (dlLog) dlLog.addEventListener("click", function () {
-    fetch("../api/crps/log")
+    fetch("api/log")
       .then(function (r) { return r.text(); })
       .then(function (t) {
         var body = $("log-body");
@@ -373,7 +373,7 @@
   }
 
   function pollEnergy() {
-    fetch("../api/crps/energy")
+    fetch("api/energy")
       .then(function (r) { return r.json(); })
       .then(renderEnergy)
       .catch(function () { /* 静默, 下次再取 */ });
@@ -455,7 +455,7 @@
   if (enReset) enReset.addEventListener("click", function () {
     if (!confirm("确定要清零所有耗电统计吗？累计/今日/本月与每日明细将全部归零，不可恢复。")) return;
     enMsg.className = "export-msg"; enMsg.textContent = "正在清零…";
-    fetch("../api/crps/energy", {
+    fetch("api/energy", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "reset" })

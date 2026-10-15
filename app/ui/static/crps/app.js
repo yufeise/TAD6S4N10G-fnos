@@ -1,4 +1,4 @@
-// psu-monitor 前端逻辑
+// CRPS 电源监控 前端逻辑 (融合版: API 走 ../api/crps/)
 (function () {
   "use strict";
 

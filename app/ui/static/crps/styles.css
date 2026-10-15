@@ -50,7 +50,7 @@ body {
   background: var(--bg);
   color: var(--text);
 }
-.app { max-width: 860px; margin: 0 auto; padding: 16px; }
+.app { padding: 16px 20px; } /* 全宽铺满, 与主应用其他页面一致 */
 header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 .sub { color: var(--muted); font-size: 13px; }

@@ -400,8 +400,11 @@
     return kwh < 10 ? kwh.toFixed(3) : kwh.toFixed(2);
   }
 
+  var enLastDays = null; // 最近一次按日明细 (resize 时重绘用)
+
   function renderEnergy(d) {
     if (!d || !d.ok) return;
+    enLastDays = d.days || [];
     $("en-total").textContent = enVal(d.total_wh);
     $("en-today").textContent = enVal(d.today_wh);
     $("en-month").textContent = enVal(d.month_wh);
@@ -426,7 +429,8 @@
 
   function drawEnergyChart(days) {
     var dpr = window.devicePixelRatio || 1;
-    var w = enCv.clientWidth || 300, h = 140;
+    var w = enCv.clientWidth, h = 140;
+    if (!w) return; // 首帧容器未布局完成: 跳过本轮, 等 poll/resize 重绘, 避免 fallback 宽度拉伸变形
     if (enCv.width !== w * dpr || enCv.height !== h * dpr) {
       enCv.width = w * dpr;
       enCv.height = h * dpr;
@@ -476,6 +480,10 @@
   }
 
   if (enCv) {
+    // 容器宽度变化 (窗口/iframe 缩放) 时按最新 clientWidth 重绘, 防止拉伸变形
+    window.addEventListener("resize", function () {
+      if (enLastDays) drawEnergyChart(enLastDays);
+    });
     enCv.addEventListener("mousemove", function (ev) {
       if (!enTip) return;
       var rect = enCv.getBoundingClientRect();

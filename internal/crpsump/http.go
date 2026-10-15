@@ -31,17 +31,21 @@ var (
 	statusTs   time.Time
 )
 
+// refreshStatusSnapshot 立即读一轮并更新快照 (风扇切换后调用, 消除缓存滞后跳动)
+func refreshStatusSnapshot(bus *Bus) {
+	if snap := readAll(bus); snap != nil && snap["error"] == nil {
+		statusMu.Lock()
+		statusSnap = snap
+		statusTs = time.Now()
+		statusMu.Unlock()
+	}
+}
+
 // StartStatusRefresher 启动状态快照后台刷新循环 (两个入口各调一次)
 func StartStatusRefresher(bus *Bus) {
 	go func() {
 		for {
-			snap := readAll(bus)
-			if snap != nil && snap["error"] == nil {
-				statusMu.Lock()
-				statusSnap = snap
-				statusTs = time.Now()
-				statusMu.Unlock()
-			}
+			refreshStatusSnapshot(bus)
 			time.Sleep(StatusRefreshInterval)
 		}
 	}()
@@ -310,6 +314,9 @@ func (s *AppServer) doPost(w http.ResponseWriter, r *http.Request, p string) {
 			pct = 10
 		}
 		ok := s.Bus.setFan(ctx, mode, pct)
+		if ok {
+			go refreshStatusSnapshot(s.Bus) // 切换成功立即刷新快照, 轮询端立刻看到新 fan_mode
+		}
 		s.send(w, 200, map[string]any{"ok": ok, "mode": s.Bus.fanModeNow(), "pct": pct}, "application/json")
 	case "/api/config":
 		if s.Bus == nil {

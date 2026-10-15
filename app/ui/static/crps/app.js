@@ -197,8 +197,10 @@
   var modeManual = $("mode-manual");
   var manualCtl = $("manual-ctl");
   var lastSent = null;
+  var modeGuardUntil = 0; // 用户刚操作模式后的保护期: 期间忽略服务器 fan_mode, 避免快照滞后把按钮拉回旧值跳动
 
   function setModeUI(mode) {
+    if (Date.now() < modeGuardUntil) return;
     modeAuto.classList.toggle("active", mode === "auto");
     modeManual.classList.toggle("active", mode === "manual");
     manualCtl.style.display = mode === "manual" ? "flex" : "none";
@@ -230,6 +232,7 @@
   }
 
   modeAuto.addEventListener("click", function () {
+    modeGuardUntil = Date.now() + 5000;
     // 实测光宝固件: FAN_COMMAND_1=10% 会触发恢复自动温控(约2700转低速档), 可软切回, 无需断电。
     // 注意: 自动转速下限随温度变化(低温约2600-2700, 高温固件会钳制在更高值如≥3100),
     // 提示不写死具体转速, 避免误导。其他值(0/0xFFFF/0x00FF)实测无效。
@@ -238,6 +241,7 @@
     });
   });
   modeManual.addEventListener("click", function () {
+    modeGuardUntil = Date.now() + 5000;
     postFan({ mode: "manual", pct: parseInt(slider.value, 10) }, function (d) {
       return "已切换：手动 " + d.pct + "%";
     });

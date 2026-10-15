@@ -455,8 +455,9 @@
       var kv = maxWh * (1 - g / 4) / 1000;
       enCtx.fillText(kv < 1 ? kv.toFixed(2) : kv.toFixed(1), padL - 4, gy + 3);
     }
+    enCtx.textAlign = "right";
+    enCtx.fillText("kWh", w - 4, padT - 5); // 单位放右上角, 与左侧刻度数字完全错开
     enCtx.textAlign = "left";
-    enCtx.fillText("kWh", 4, padT - 5); // 单位放在顶部刻度线上方, 避开 0.30 重叠
     // 柱体 (今日高亮)
     var step = Math.ceil(data.length / 7);
     data.forEach(function (d, i) {

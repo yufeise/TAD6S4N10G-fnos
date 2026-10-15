@@ -460,6 +460,7 @@ func initCrps(logger *log.Logger, cfgPath string) (http.Handler, func()) {
 	}
 	bus := crpsump.NewBus(sclPin, sdaPin, configured)
 	energy := crpsump.StartEnergy(bus, filepath.Join(filepath.Dir(cfgPath), "energy.json"))
+	crpsump.StartStatusRefresher(bus) // 状态快照后台刷新: CRPS 页面首开即有数据
 	crpsump.LogStartup(bus, sclPin, sdaPin)
 	logger.Printf("crps module enabled config=%s energy=%s", cfgPath, filepath.Join(filepath.Dir(cfgPath), "energy.json"))
 	srv := &crpsump.AppServer{Bus: bus, ConfigPath: cfgPath}

@@ -1,5 +1,5 @@
 appname=tad-module
-version=0.10.23
+version=0.10.24
 display_name=TAD6S4N模块
 desc=面向 TAD6S4N10G 的温度、功耗、三曲线风扇、硬盘面板、GPIO 按键、CRPS 电源 PMBus 监控与脱敏调试报告模块。
 source=thirdparty
@@ -14,4 +14,4 @@ desktop_applaunchname=tad-module.Application
 checkport=false
 disable_authorization_path=false
 micro_app=true
-changelog=v0.10.23：CRPS 日志弹窗标题修正；v0.10.22：修复 CRPS 板块 API 挂载路径改写（/api/crps/<ep> → 板块原路由）；v0.10.21：新增 CRPS 电源 PMBus 监控板块（独立标签页：电压/电流/功率/温度/转速、风扇 10-100% 手动控制、耗电量统计，配置 crps.json/energy.json 与主配置同目录）；v0.10.20：#29 历史温度/风扇调试/USB 温度；#27 历史传感器与图表修复；#28 CI 测试容差；#31 风扇调试切换单位换算已接管目标值。
+changelog=v0.10.24：CRPS 板块状态快照缓存（后台 3s 刷新，页面首开立即显示数据）、图表 kWh 单位错位修复；v0.10.23：CRPS 日志弹窗标题修正；v0.10.22：修复 CRPS 板块 API 挂载路径改写（/api/crps/<ep> → 板块原路由）；v0.10.21：新增 CRPS 电源 PMBus 监控板块（独立标签页：电压/电流/功率/温度/转速、风扇 10-100% 手动控制、耗电量统计，配置 crps.json/energy.json 与主配置同目录）；v0.10.20：#29 历史温度/风扇调试/USB 温度；#27 历史传感器与图表修复；#28 CI 测试容差；#31 风扇调试切换单位换算已接管目标值。

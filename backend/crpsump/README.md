@@ -1,4 +1,4 @@
-# psu-monitor-go — CRPS 电源 PMBus 监控（Go 版）
+﻿# psu-monitor-go — CRPS 电源 PMBus 监控（Go 版）
 
 光宝 LiteOn PS-2551-5L CRPS 550W 电源的 PMBus 监控服务，通过主板 F_PANEL GPIO
 软件 bitbang I2C 读取电压/电流/功率/温度/转速/状态字，并控制风扇。
@@ -8,6 +8,7 @@
 `internal/crpsump`，serve 入口在 `backend/crpsump`，与主应用相互独立、不共享配置与状态。
 
 ## 版本
+- **1.0.49**：状态快照缓存——后台每 3s 刷新一轮完整状态, /api/status 直接回缓存 (≤3s 旧), 打开页面立即显示数据; 快照未就绪时回退实时读取。耗电图表 kWh 单位移至右上角, 彻底避开与刻度数字重叠。
 - **1.0.48**：风扇手动占比范围收紧为 10-100%——前端滑条 min 由 0 改 10、提示文案同步；后端 /api/fan 与 writeFanPct 对 <10 的占比钳制到 10%（光宝固件 10% 以下实测无效）。
 - **1.0.47**：功能精简——移除温控曲线（前端面板/导出、recordCurve 采样、GET /api/curve）；移除 GPIO 配置区两个诊断按钮及其后端（"试0x3A恢复自动" GET /api/fan-test、"写假温度测风扇" GET /api/temp-test），连带删除仅被诊断使用的 writeByte/readByteData/tempToLinear11/hexStr/pval；风扇手动/自动控制、状态读取、耗电统计、GPIO 配置/探测均不受影响。
 - **1.0.46**：新增耗电量统计——后台每 15s 采样 READ_PIN 矩形积分，按总量/今日/本月/按日明细累计；持久化 energy.json（默认与 --config 同目录，可用 --energy 指定，临时文件+rename 原子写入），服务重启若距上次落盘 ≤10 分钟按断电前功率补计；新增 GET /api/energy 与 POST /api/energy（统计清零）；前端新增"耗电统计"面板（累计/今日/本月/实时功率卡片 + 近 14 日柱状图 + 统计清零）。

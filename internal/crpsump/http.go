@@ -9,8 +9,53 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
+
+// ---------------- 状态快照缓存 (提前读取: 打开页面即有数据) ----------------
+//
+// bitbang 读一轮完整状态需数百毫秒, iframe 首次打开时前端第一个请求等待明显。
+// 后台协程周期刷新快照, /api/status 直接回缓存 (数据最多旧一个刷新周期);
+// 快照未就绪 (刚启动/连续失败) 时回退实时读取, 保持旧行为。
+// 刷新与请求共用总线锁, 串行化无竞争; 缓存也降低了多客户端轮询的总线压力。
+
+const (
+	StatusRefreshInterval = 3 * time.Second  // 快照后台刷新周期
+	StatusSnapshotMaxAge  = 10 * time.Second // 快照最大可信时长, 超出回退实时读
+)
+
+var (
+	statusMu   sync.Mutex
+	statusSnap map[string]any
+	statusTs   time.Time
+)
+
+// StartStatusRefresher 启动状态快照后台刷新循环 (两个入口各调一次)
+func StartStatusRefresher(bus *Bus) {
+	go func() {
+		for {
+			snap := readAll(bus)
+			if snap != nil && snap["error"] == nil {
+				statusMu.Lock()
+				statusSnap = snap
+				statusTs = time.Now()
+				statusMu.Unlock()
+			}
+			time.Sleep(StatusRefreshInterval)
+		}
+	}()
+}
+
+func cachedStatus(bus *Bus) map[string]any {
+	statusMu.Lock()
+	snap, age := statusSnap, time.Since(statusTs)
+	statusMu.Unlock()
+	if snap != nil && age <= StatusSnapshotMaxAge {
+		return snap
+	}
+	return readAll(bus) // 回退: 快照未就绪/过期时实时读
+}
 
 // ---------------- 参数读取 ----------------
 
@@ -176,7 +221,7 @@ func (s *AppServer) doGet(w http.ResponseWriter, r *http.Request, p string) {
 	ctx := r.Context()
 	switch p {
 	case "/api/status":
-		s.send(w, 200, readAll(s.Bus), "application/json")
+		s.send(w, 200, cachedStatus(s.Bus), "application/json")
 	case "/api/bus":
 		addr := "0x5b"
 		if s.Bus != nil {

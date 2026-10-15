@@ -61,7 +61,7 @@ const (
 	LogPath       = "/tmp/psu-monitor.log"
 	LogMaxSize    = 1 << 20                // 日志单文件上限 1MB, 超出轮转
 	Delay         = 100 * time.Microsecond // bitbang 半周期
-	AppVersion    = "1.0.48"
+	AppVersion    = "1.0.49"
 	MfrCacheTTL   = 60 // 秒
 	DefaultSCL    = "Pin19"
 	DefaultSDA    = "Pin20"

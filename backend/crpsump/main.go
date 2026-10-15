@@ -70,6 +70,7 @@ func main() {
 		ep = "energy.json"
 	}
 	energy := crpsump.StartEnergy(bus, ep)
+	crpsump.StartStatusRefresher(bus) // 状态快照后台刷新: 页面首开即有数据
 
 	// 启动自检: 仅在 GPIO 已配置后才读取电源
 	crpsump.LogStartup(bus, sclPin, sdaPin)

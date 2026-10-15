@@ -626,14 +626,20 @@ func (b *Bus) setFan(ctx context.Context, mode string, pct int) bool {
 		}
 		return ok
 	}
+	// baseline 供后台日志对比; 写入成功即返回, 不阻塞切换响应 (固件调速有迟滞)
 	baseline := b.fanRpm()
 	ok := b.writeFanPct(10)
-	if !sleepCtx(ctx, 3*time.Second) {
+	if !ok {
 		return ok
 	}
-	rpm := b.fanRpm()
-	Logf("切回自动: 写 FAN_COMMAND_1=10%% -> FAN=%s (手动基线=%s)", ptrStr(rpm), ptrStr(baseline))
 	b.setFanMode("auto")
+	go func() {
+		if !sleepCtx(context.Background(), 3*time.Second) {
+			return
+		}
+		rpm := b.fanRpm()
+		Logf("切回自动: 写 FAN_COMMAND_1=10%% -> FAN=%s (手动基线=%s)", ptrStr(rpm), ptrStr(baseline))
+	}()
 	return ok
 }
 

@@ -1,6 +1,51 @@
-// CRPS 电源监控 前端逻辑 (独立版: API 同源相对路径; 融合版副本见 app/ui/static/crps/)
+// CRPS 电源监控 前端逻辑 (独立版: API 同源相对路径)
 (function () {
   "use strict";
+
+  // ---- 主题引导 (与主应用同口径): CSP 禁止内联 <script>, 放这里执行 ----
+  // 跟随 localStorage 'tad-theme' (dark/light/auto); auto 档优先读 fnOS
+  // 父窗口 body[theme-mode] (同源内嵌时), 不可读再退 prefers-color-scheme。
+  var themeMode = "auto";
+  try {
+    var stored = localStorage.getItem("tad-theme");
+    if (stored === "dark" || stored === "light" || stored === "auto") themeMode = stored;
+  } catch (e) { /* localStorage 不可用时跟随系统 */ }
+  var parentThemeMode = function () {
+    try {
+      var p = window.parent;
+      if (p === window || !p.document || !p.document.body) return "";
+      var m = (p.document.body.getAttribute("theme-mode") || "").trim().toLowerCase();
+      return m === "dark" || m === "light" ? m : "";
+    } catch (e) { return ""; } // 父窗口跨域不可读
+  };
+  var applyTheme = function () {
+    var theme = themeMode;
+    if (themeMode === "auto") {
+      theme = parentThemeMode() ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    }
+    document.documentElement.dataset.theme = theme;
+  };
+  applyTheme();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme);
+  try {
+    window.addEventListener("storage", function (e) {
+      if (!e.key || e.key === "tad-theme") {
+        var s = localStorage.getItem("tad-theme");
+        themeMode = (s === "dark" || s === "light" || s === "auto") ? s : "auto";
+        applyTheme();
+      }
+    });
+  } catch (e) { /* 忽略 */ }
+
+  // 图表取设计令牌 (暗色切换后随 render 重绘自动跟上)
+  var cssVar = function (name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  };
+  var hexToRgba = function (hex, a) {
+    var n = parseInt(hex.replace("#", ""), 16);
+    return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+  };
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -391,7 +436,7 @@
     enBars = [];
     var data = days.slice(-14);
     if (!data.length) {
-      enCtx.fillStyle = "#999"; enCtx.font = "13px sans-serif"; enCtx.textAlign = "center";
+      enCtx.fillStyle = cssVar("--muted"); enCtx.font = "13px sans-serif"; enCtx.textAlign = "center";
       enCtx.fillText("暂无数据（每 15 秒自动累计）", w / 2, h / 2);
       return;
     }
@@ -402,8 +447,8 @@
     maxWh = maxWh * 1.15;
     var bw = Math.min(44, iw / data.length * 0.6);
     // 网格 + Y 轴 kWh 刻度
-    enCtx.strokeStyle = "#eee"; enCtx.lineWidth = 1;
-    enCtx.fillStyle = "#94a3b8"; enCtx.font = "10px sans-serif"; enCtx.textAlign = "right";
+    enCtx.strokeStyle = cssVar("--chart-grid"); enCtx.lineWidth = 1;
+    enCtx.fillStyle = cssVar("--muted"); enCtx.font = "10px sans-serif"; enCtx.textAlign = "right";
     for (var g = 0; g <= 4; g++) {
       var gy = padT + ih * g / 4;
       enCtx.beginPath(); enCtx.moveTo(padL, gy); enCtx.lineTo(w - padR, gy); enCtx.stroke();
@@ -417,11 +462,13 @@
     data.forEach(function (d, i) {
       var cx = padL + iw * (i + 0.5) / data.length;
       var bh = d.wh > 0 ? Math.max(2, d.wh / maxWh * ih) : 0;
-      enCtx.fillStyle = i === data.length - 1 ? "#2563eb" : "#93c5fd";
+      enCtx.fillStyle = i === data.length - 1
+        ? cssVar("--primary")
+        : hexToRgba(cssVar("--primary") || "#3478f6", 0.35);
       if (bh > 0) enCtx.fillRect(cx - bw / 2, padT + ih - bh, bw, bh);
       enBars.push({ x: cx - bw / 2 - 3, y: padT, w: bw + 6, h: ih, date: d.date, wh: d.wh });
       if (i % step === 0) {
-        enCtx.fillStyle = "#94a3b8"; enCtx.textAlign = "center";
+        enCtx.fillStyle = cssVar("--muted"); enCtx.textAlign = "center";
         enCtx.fillText(d.date.slice(5), cx, padT + ih + 13);
       }
     });

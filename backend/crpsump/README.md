@@ -42,6 +42,38 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-s -w" -o app/bin/crps-
 ```
 `--web-root` 默认值 `ui/static` 相对工作目录解析，即本目录下的 `ui/static`（从 `backend/crpsump` 目录启动时无需调整）。
 
+## 部署到飞牛 NAS（更新线上）
+
+线上路径：二进制 `/usr/local/apps/@appcenter/psu-monitor/bin/psu-monitor`，
+UI `/usr/local/apps/@appcenter/psu-monitor/ui/static/`，配置 `@appconf/psu-monitor/gpio.json`，
+由 `trim_app_center.service` 托管（pkill 后不会自动拉起，需重启该服务，拉起有 ~1 分钟延迟）。
+
+改代码后的完整流程（仓库 `deploy/` 下有现成脚本可参照/复用）：
+
+```bash
+# 1. 交叉编译（Windows PowerShell 下同理，仅环境变量写法不同）
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-s -w" -o crps-module ./backend/crpsump
+
+# 2. 上传到 NAS
+ssh 192.168.0.2 "mkdir -p /tmp/deploy"
+scp crps-module yufeise@192.168.0.2:/tmp/deploy/
+scp ui/static/{app.js,index.html,styles.css} yufeise@192.168.0.2:/tmp/deploy/   # UI 有改动时
+
+# 3. 安装并重启托管服务（NAS 上执行；先备份旧二进制）
+sudo cp -a /usr/local/apps/@appcenter/psu-monitor/bin/psu-monitor{,.bak-<旧版本>}
+sudo install -m755 /tmp/deploy/crps-module /usr/local/apps/@appcenter/psu-monitor/bin/psu-monitor
+sudo install -m644 /tmp/deploy/app.js /usr/local/apps/@appcenter/psu-monitor/ui/static/app.js
+sudo pkill -x psu-monitor; sudo systemctl restart trim_app_center
+
+# 4. 等 50 秒后验证（unix socket 直调 API）
+SOCK=/usr/local/apps/@appcenter/psu-monitor/psu-monitor.sock
+curl -s --unix-socket $SOCK http://localhost/api/status | head -c 300
+curl -s --unix-socket $SOCK -X POST -d '{"mode":"manual","pct":5}' http://localhost/api/fan  # 应回 pct:10
+```
+
+注意：UI 静态文件由 FileServer 直接读磁盘，只改前端时覆盖 `ui/static/` 即时生效，无需重启；浏览器需 Ctrl+F5 强刷。
+仅改前端可不重启；改了 Go 代码必须重启（pkill + `systemctl restart trim_app_center`）。
+
 ## API
 | 方法 | 路径 | 说明 |
 |---|---|---|

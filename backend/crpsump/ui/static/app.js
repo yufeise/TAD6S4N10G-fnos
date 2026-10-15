@@ -395,7 +395,7 @@
       enCtx.fillText("暂无数据（每 15 秒自动累计）", w / 2, h / 2);
       return;
     }
-    var padL = 40, padR = 8, padT = 8, padB = 22;
+    var padL = 40, padR = 8, padT = 16, padB = 22;
     var iw = w - padL - padR, ih = h - padT - padB;
     var maxWh = 10;
     data.forEach(function (d) { if (d.wh > maxWh) maxWh = d.wh; });
@@ -411,7 +411,7 @@
       enCtx.fillText(kv < 1 ? kv.toFixed(2) : kv.toFixed(1), padL - 4, gy + 3);
     }
     enCtx.textAlign = "left";
-    enCtx.fillText("kWh", 4, padT + 4);
+    enCtx.fillText("kWh", 4, padT - 5); // 单位放在顶部刻度线上方, 避开 0.30 重叠
     // 柱体 (今日高亮)
     var step = Math.ceil(data.length / 7);
     data.forEach(function (d, i) {

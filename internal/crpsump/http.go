@@ -314,9 +314,8 @@ func (s *AppServer) doPost(w http.ResponseWriter, r *http.Request, p string) {
 			pct = 10
 		}
 		ok := s.Bus.setFan(ctx, mode, pct)
-		if ok {
-			go refreshStatusSnapshot(s.Bus) // 切换成功立即刷新快照, 轮询端立刻看到新 fan_mode
-		}
+		// 注: 这里不再主动刷新快照 — 会与后台循环/连续切换抢总线锁拖慢响应,
+		// 快照由后台循环 ≤3s 自然收敛, 前端有 5s 保护期覆盖。
 		s.send(w, 200, map[string]any{"ok": ok, "mode": s.Bus.fanModeNow(), "pct": pct}, "application/json")
 	case "/api/config":
 		if s.Bus == nil {

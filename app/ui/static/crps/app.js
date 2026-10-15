@@ -211,7 +211,10 @@
     applyModeUI(mode);
   }
 
-  function postFan(body, doneMsg) {
+  var fanBusy = false, fanPending = null; // 连点合并: 忙时只记最新目标, 当前请求完成后补发
+
+  function sendFan(body, doneMsg) {
+    fanBusy = true;
     msg.className = "";
     msg.textContent = "正在设置…";
     fetch("../api/crps/fan", {
@@ -221,22 +224,37 @@
     })
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        fanBusy = false;
         if (d.ok) {
           msg.className = "ok";
           lastKnownMode = d.mode;
-          applyModeUI(d.mode); // POST 成功立即切按钮, 不受保护期限制
+          applyModeUI(d.mode);
           msg.textContent = doneMsg(d);
         } else {
           msg.className = "err";
-          if (lastKnownMode) applyModeUI(lastKnownMode); // 失败回滚到轮询确认的模式
+          if (lastKnownMode) applyModeUI(lastKnownMode);
           msg.textContent = "设置失败: " + (d.error || "未知错误");
         }
+        if (fanPending) { var p = fanPending; fanPending = null; sendFan(p.body, p.doneMsg); }
       })
       .catch(function (e) {
+        fanBusy = false;
         msg.className = "err";
-        if (lastKnownMode) applyModeUI(lastKnownMode); // 失败回滚到轮询确认的模式
+        if (lastKnownMode) applyModeUI(lastKnownMode);
         msg.textContent = "设置失败: " + e.message;
+        if (fanPending) { var p2 = fanPending; fanPending = null; sendFan(p2.body, p2.doneMsg); }
       });
+  }
+
+  function requestFan(body, doneMsg) { // 点击入口: 乐观即时切 UI; 忙时只记最新目标, 避免请求堆积变慢
+    applyModeUI(body.mode);
+    if (fanBusy) {
+      fanPending = { body: body, doneMsg: doneMsg };
+      msg.className = "";
+      msg.textContent = "正在设置…";
+      return;
+    }
+    sendFan(body, doneMsg);
   }
 
   modeAuto.addEventListener("click", function () {
@@ -244,13 +262,13 @@
     // 实测光宝固件: FAN_COMMAND_1=10% 会触发恢复自动温控(约2700转低速档), 可软切回, 无需断电。
     // 注意: 自动转速下限随温度变化(低温约2600-2700, 高温固件会钳制在更高值如≥3100),
     // 提示不写死具体转速, 避免误导。其他值(0/0xFFFF/0x00FF)实测无效。
-    postFan({ mode: "auto" }, function () {
+    requestFan({ mode: "auto" }, function () {
       return "已切回电源自动温控";
     });
   });
   modeManual.addEventListener("click", function () {
     modeGuardUntil = Date.now() + 5000;
-    postFan({ mode: "manual", pct: parseInt(slider.value, 10) }, function (d) {
+    requestFan({ mode: "manual", pct: parseInt(slider.value, 10) }, function (d) {
       return "已切换：手动 " + d.pct + "%";
     });
   });

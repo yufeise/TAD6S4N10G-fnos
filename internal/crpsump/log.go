@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"syscall"
 )
 
 // ---------------- 日志 (常开句柄 + O_NOFOLLOW + 按大小轮转) ----------------
@@ -18,8 +17,8 @@ func ensureLogFile() *os.File {
 	if logFile != nil {
 		return logFile
 	}
-	// O_NOFOLLOW: 拒绝把日志写入符号链接目标(防多用户环境下被劫持)
-	f, err := os.OpenFile(LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY|syscall.O_NOFOLLOW, 0644)
+	// openNoFollow (Linux): 拒绝把日志写入符号链接目标(防多用户环境下被劫持)
+	f, err := os.OpenFile(LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY|openNoFollow, 0644)
 	if err != nil {
 		return nil
 	}

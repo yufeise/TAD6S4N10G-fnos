@@ -915,6 +915,11 @@ function deleteGPIOScript(scriptID) {
 }
 
 function activateTab(tabID, focus = false) {
+  // CRPS 页 iframe 懒加载：首次切到该页才加载，避免常驻轮询耗电 API
+  if (tabID === 'tab-crps') {
+    const frame = $('crps-frame');
+    if (frame && !frame.src && frame.dataset.src) frame.src = frame.dataset.src;
+  }
   // 只遍历主导航标签：曲线编辑器等页内 [role=tab] 自成 tablist，
   // 不归主页面切换管——全局遍历会把它们的 aria-controls 面板误隐藏
   const tabs = [...document.querySelectorAll('.app-tabs [role="tab"]')];

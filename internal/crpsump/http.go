@@ -352,6 +352,12 @@ func (s *AppServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// APIHandler 供宿主应用 (tad-module) 挂载 CRPS API 子路由:
+// 宿主以 http.StripPrefix("/api/crps", srv.APIHandler()) 挂载, 经 StripPrefix
+// 后路径恢复为 /api/status 等原样路径, 与独立 serve 模式行为一致。
+// 融合模式下静态 UI 由宿主的 WebRoot FileServer 提供, 不经过本 handler。
+func (s *AppServer) APIHandler() http.Handler { return s }
+
 // ---------------- 启动自检 ----------------
 
 // LogStartup 启动自检 (原 serve 入口启动段): GPIO 已配置时读一次 VIN 判断接线连通,

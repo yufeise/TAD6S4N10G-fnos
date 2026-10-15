@@ -2134,3 +2134,16 @@ button.danger {
   font-weight: 650;
   white-space: nowrap;
 }
+
+/* ---- CRPS 电源监控页 (iframe 内嵌独立页面) ---- */
+.tab-panel.crps-panel {
+  height: calc(100vh - 140px);
+  min-height: 520px;
+}
+.tab-panel.crps-panel iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: var(--radius-lg, 12px);
+  background: transparent;
+}

@@ -449,7 +449,8 @@
     var maxWh = 10;
     data.forEach(function (d) { if (d.wh > maxWh) maxWh = d.wh; });
     maxWh = maxWh * 1.15;
-    var bw = Math.min(44, iw / data.length * 0.6);
+    var slot = iw / 14;                 // 固定 14 天槽位: 柱子从左侧依次排开, 不随天数均分整幅宽度
+    var bw = Math.min(44, slot * 0.6);
     // 网格 + Y 轴 kWh 刻度
     enCtx.strokeStyle = cssVar("--chart-grid"); enCtx.lineWidth = 1;
     enCtx.fillStyle = cssVar("--muted"); enCtx.font = "10px sans-serif"; enCtx.textAlign = "right";
@@ -462,17 +463,17 @@
     enCtx.textAlign = "right";
     enCtx.fillText("kWh", w - 4, padT - 5); // 单位放右上角, 与左侧刻度数字完全错开
     enCtx.textAlign = "left";
-    // 柱体 (今日高亮)
-    var step = Math.ceil(data.length / 7);
+    // 柱体 (今日=最新一根高亮)
+    var labelStep = Math.max(1, Math.ceil(data.length / 7));
     data.forEach(function (d, i) {
-      var cx = padL + iw * (i + 0.5) / data.length;
+      var cx = padL + slot * (i + 0.5);
       var bh = d.wh > 0 ? Math.max(2, d.wh / maxWh * ih) : 0;
       enCtx.fillStyle = i === data.length - 1
         ? cssVar("--primary")
         : hexToRgba(cssVar("--primary") || "#3478f6", 0.35);
       if (bh > 0) enCtx.fillRect(cx - bw / 2, padT + ih - bh, bw, bh);
       enBars.push({ x: cx - bw / 2 - 3, y: padT, w: bw + 6, h: ih, date: d.date, wh: d.wh });
-      if (i % step === 0) {
+      if (i % labelStep === 0) {
         enCtx.fillStyle = cssVar("--muted"); enCtx.textAlign = "center";
         enCtx.fillText(d.date.slice(5), cx, padT + ih + 13);
       }

@@ -80,9 +80,12 @@
 3. **对话历史导入**: 关闭 Trae → 把 `backup/trae-chatdb/` 里的 database.db / .db-shm / .db-wal
    三个文件放回 `C:\Users\web\AppData\Roaming\Trae CN\ModularData\ai-agent\`（覆盖）→ 启动 Trae，
    历史会话全部回来。⚠️ 放回的库是备份时点的快照，之后的对话不在里面；此目录 git 已忽略（25MB+ 二进制）
-4. **工具链**: 按上表重装 Go/git，重建 SSH key（公钥追加到 NAS `~/.ssh/authorized_keys`）
+4. **工具链**（仅重装系统需要）: 装 git（`winget install Git.Git`）、Go（见上表）；
+   SSH 免密: 把 `backup/ssh-key/` 的 fnos_key / fnos_key.pub 复制回 `%USERPROFILE%\.ssh\`，
+   再跑一次 `type $env:USERPROFILE\.ssh\fnos_key.pub | ssh yufeise@192.168.0.2 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"`（输一次 NAS 密码）
 5. **NAS 侧不受影响**（除非同时重装 fnOS）: 应用与数据都在 NAS 上；
    若 fnOS 重装：应用中心装最新 Release fpk → 把 `backup/` 里导出的 crps.json/energy.json
    恢复到 `/usr/local/apps/@appconf/tad-module/` → 重启 trim_app_center
 
-**备份维护**: 每次重要改动后说一句"更新备份"即可——刷新记忆文件拷贝 + 对话库拷贝 + 重新打 zip + 推 GitHub。
+**备份维护**: 每次重要改动后说一句"更新备份"即可——自动跑 [backup.ps1](backup.ps1)
+（刷新记忆拷贝 + 对话库拷贝 + NAS 快照 + 重打 zip + 推 GitHub）。

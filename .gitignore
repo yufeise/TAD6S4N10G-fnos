@@ -11,3 +11,6 @@ release/
 
 # 对话历史数据库: 只留本地备份, 不推 GitHub (25MB 二进制)
 backup/trae-chatdb/
+
+# SSH 私钥: 只留本地备份, 不推 GitHub
+backup/ssh-key/

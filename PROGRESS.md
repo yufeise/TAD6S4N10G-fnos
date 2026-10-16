@@ -69,11 +69,20 @@
 
 ## 重装系统后恢复指南
 
-1. **代码**: `git clone https://github.com/yufeise/TAD6S4N10G-fnos.git`（即本目录，全部历史在 GitHub）
+> **最省事路径**: 直接解压本地备份 zip（如 `d:\crps电源控制-backup-2026-10-17.zip`，
+> 每次重要改动后重新打包一次）——它 = 本仓库完整内容 + git 全历史 + Trae 记忆 + **对话历史数据库**。
+> 恢复只做下面 2 个"放回"动作，不用花积分让 AI 重新读代码理解项目。
+
+1. **代码**: 解压 zip 即得全部（或 `git clone https://github.com/yufeise/TAD6S4N10G-fnos.git`）
 2. **Trae 记忆导入**: 把 `backup/trae-memory/` 下的内容放回
    `c:\Users\web\.trae-cn\memory\projects\-d-crps------p2-0e1e6b334b9462401340\`
    （project_memory.md 放根目录，20261014/20261015 日期目录原样放回）→ 新会话自动带上项目上下文
-3. **工具链**: 按上表重装 Go/git，重建 SSH key（公钥追加到 NAS `~/.ssh/authorized_keys`）
-4. **NAS 侧不受影响**（除非同时重装 fnOS）: 应用与数据都在 NAS 上；
-   若 fnOS 重装：应用中心装最新 Release fpk → 把本机 `backup/` 里导出的 crps.json/energy.json
+3. **对话历史导入**: 关闭 Trae → 把 `backup/trae-chatdb/` 里的 database.db / .db-shm / .db-wal
+   三个文件放回 `C:\Users\web\AppData\Roaming\Trae CN\ModularData\ai-agent\`（覆盖）→ 启动 Trae，
+   历史会话全部回来。⚠️ 放回的库是备份时点的快照，之后的对话不在里面；此目录 git 已忽略（25MB+ 二进制）
+4. **工具链**: 按上表重装 Go/git，重建 SSH key（公钥追加到 NAS `~/.ssh/authorized_keys`）
+5. **NAS 侧不受影响**（除非同时重装 fnOS）: 应用与数据都在 NAS 上；
+   若 fnOS 重装：应用中心装最新 Release fpk → 把 `backup/` 里导出的 crps.json/energy.json
    恢复到 `/usr/local/apps/@appconf/tad-module/` → 重启 trim_app_center
+
+**备份维护**: 每次重要改动后说一句"更新备份"即可——刷新记忆文件拷贝 + 对话库拷贝 + 重新打 zip + 推 GitHub。

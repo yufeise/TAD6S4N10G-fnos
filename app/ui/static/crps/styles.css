@@ -47,7 +47,7 @@
 body {
   margin: 0;
   font-family: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
-  background: var(--bg);
+  background: var(--surface); /* 白底融入主应用内容区, 消除 iframe 灰色底框观感 */
   color: var(--text);
 }
 .app { padding: 16px 20px; } /* 全宽铺满, 与主应用其他页面一致 */
@@ -65,21 +65,29 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 .status-banner.ok .dot { background: var(--success); }
 .status-banner.err .dot { background: var(--danger); }
 
+/* 参数卡: 固定单行 10 列紧凑排布 (与主应用参数区一致的一排观感), 窄屏才回退换行 */
 .grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  display: grid; grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 8px;
 }
 .card {
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 14px 16px;
+  border-radius: var(--radius); padding: 10px 12px;
+  min-width: 0;
 }
-.card .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-.card .value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
-.card .unit { font-size: 13px; color: var(--muted); margin-left: 3px; font-weight: 400; }
-.card .extra { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.pf-bar { height: 8px; background: var(--surface-muted); border-radius: 4px; margin-top: 8px; overflow: hidden; }
-.pf-fill { height: 100%; width: 0%; border-radius: 4px; background: var(--success); transition: width .5s ease, background .5s ease; }
+.card .label { font-size: 11px; color: var(--muted); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+.card .unit { font-size: 11px; color: var(--muted); margin-left: 2px; font-weight: 400; }
+.card .extra { font-size: 10px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-bar { height: 5px; background: var(--surface-muted); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.pf-fill { height: 100%; width: 0%; border-radius: 3px; background: var(--success); transition: width .5s ease, background .5s ease; }
 .card.warn .value { color: var(--danger); }
+
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .card .value { font-size: 22px; }
+  .card .label { font-size: 12px; }
+}
 
 .fan-panel, .mfr-panel, .gpio-panel {
   background: var(--surface); border: 1px solid var(--line);

@@ -94,8 +94,9 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
   border-radius: var(--radius); padding: 16px; margin-top: 14px;
 }
 .fan-panel h2, .mfr-panel h2, .gpio-panel h2 { font-size: 15px; font-weight: 700; margin: 0 0 12px; color: var(--text); }
-/* 模式切换: 分段控件风格 (参考 iOS/macOS Auto/Manual 切换), 一个圆角容器内两段 */
-.fan-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+/* 模式切换: 分段控件风格 (参考 iOS/macOS Auto/Manual 切换), 一个圆角容器内两段;
+   转速与控件紧凑靠左排, 不做两端分散 */
+.fan-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
 .fan-row { display: flex; align-items: baseline; gap: 8px; }
 .fan-label { color: var(--muted); font-size: 14px; }
 .fan-val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }

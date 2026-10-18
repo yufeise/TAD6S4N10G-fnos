@@ -94,21 +94,23 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
   border-radius: var(--radius); padding: 16px; margin-top: 14px;
 }
 .fan-panel h2, .mfr-panel h2, .gpio-panel h2 { font-size: 15px; font-weight: 700; margin: 0 0 12px; color: var(--text); }
-.fan-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+/* 桌面端转速与模式按钮同行 (左转速右按钮), 手机端媒体查询改回堆叠 */
+.fan-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.fan-row { display: flex; align-items: baseline; gap: 8px; }
 .fan-label { color: var(--muted); font-size: 14px; }
 .fan-val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .fan-unit { color: var(--muted); font-size: 13px; }
-.fan-mode-row { display: flex; gap: 10px; margin: 4px 0 12px; }
+.fan-mode-row { display: flex; gap: 8px; }
 .mode-btn {
-  flex: 1; padding: 10px 0; border: 1px solid var(--line);
+  flex: 0 0 auto; padding: 8px 22px; border: 1px solid var(--line);
   background: transparent; color: var(--muted); border-radius: var(--radius-sm);
   font-size: 14px; cursor: pointer; transition: all .15s;
 }
 .mode-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
-.slider-row { display: flex; align-items: center; gap: 12px; }
+.slider-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .slider-row input[type=range] { flex: 1; accent-color: var(--primary); height: 32px; }
 .pct { font-size: 16px; font-weight: 600; min-width: 44px; text-align: right; }
-.fan-tip { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.fan-tip { font-size: 12px; color: var(--muted); margin-top: 10px; }
 .fan-msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
 .fan-msg.ok { color: var(--success); }
 .fan-msg.err { color: var(--danger); }
@@ -199,6 +201,10 @@ footer { display: flex; justify-content: space-between; margin-top: 14px; color:
 /* ---- 手机端 (竖屏) ---- */
 @media (max-width: 640px) {
   .app { padding: 12px 12px; }
+  /* 风扇控制手机端回退堆叠: 转速一行, 按钮等宽铺满 */
+  .fan-head { flex-direction: column; align-items: stretch; }
+  .fan-mode-row { margin-top: 4px; }
+  .mode-btn { flex: 1; padding: 10px 0; }
   /* 耗电统计 4 卡固定 2x2, 避免窄屏 auto-fill 退化成一竖排 */
   .energy-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .ecard .val { font-size: 18px; }

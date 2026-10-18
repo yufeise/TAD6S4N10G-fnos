@@ -57,20 +57,22 @@
 
   <section class="fan-panel">
     <h2>🖥 风扇控制</h2>
-    <div class="fan-row">
-      <span class="fan-label">转速</span>
-      <span class="fan-val" id="fan-rpm">--</span>
-      <span class="fan-unit">RPM</span>
-    </div>
-    <div class="fan-mode-row">
-      <button id="mode-auto" class="mode-btn active">电源自动</button>
-      <button id="mode-manual" class="mode-btn">手动控制</button>
+    <div class="fan-head">
+      <div class="fan-row">
+        <span class="fan-label">转速</span>
+        <span class="fan-val" id="fan-rpm">--</span>
+        <span class="fan-unit">RPM</span>
+      </div>
+      <div class="fan-mode-row">
+        <button id="mode-auto" class="mode-btn active">电源自动</button>
+        <button id="mode-manual" class="mode-btn">手动控制</button>
+      </div>
     </div>
     <div class="slider-row hidden" id="manual-ctl">
       <input type="range" id="fan-slider" min="10" max="100" step="1" value="10">
       <span class="pct" id="fan-pct">10%</span>
     </div>
-    <div class="fan-tip">自动 = 电源固件按温度调速；手动 = 指定占空比下限（10-100%）。</div>
+    <div class="fan-tip">自动模式由电源按温度调速，手动模式拖动滑杆调节转速。</div>
     <div class="fan-msg" id="fan-msg"></div>
   </section>
 

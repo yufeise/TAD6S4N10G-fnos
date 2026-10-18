@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -29,6 +30,8 @@ var (
 	statusMu   sync.Mutex
 	statusSnap map[string]any
 	statusTs   time.Time
+	// fanSnapRefresh: 风扇设置后的延后快照刷新进行中标记 (防连点堆积 goroutine)
+	fanSnapRefresh atomic.Bool
 )
 
 // refreshStatusSnapshot 立即读一轮并更新快照 (风扇切换后调用, 消除缓存滞后跳动)
@@ -314,8 +317,16 @@ func (s *AppServer) doPost(w http.ResponseWriter, r *http.Request, p string) {
 			pct = 10
 		}
 		ok := s.Bus.setFan(ctx, mode, pct)
-		// 注: 这里不再主动刷新快照 — 会与后台循环/连续切换抢总线锁拖慢响应,
-		// 快照由后台循环 ≤3s 自然收敛, 前端有 5s 保护期覆盖。
+		// 异步延后刷新快照: 不在响应路径同步读 (会与后台循环/连续切换抢总线锁拖慢响应),
+		// 等 ~1.2s 让电源固件转速先动起来再读一轮, 前端随后立即拉取, 转速显示延迟
+		// 从最坏 ~6s (快照3s+轮询3s) 压到 ~1.5s。合并标记防连点堆积多个刷新。
+		if ok && fanSnapRefresh.CompareAndSwap(false, true) {
+			go func() {
+				time.Sleep(1200 * time.Millisecond)
+				refreshStatusSnapshot(s.Bus)
+				fanSnapRefresh.Store(false)
+			}()
+		}
 		s.send(w, 200, map[string]any{"ok": ok, "mode": s.Bus.fanModeNow(), "pct": pct}, "application/json")
 	case "/api/config":
 		if s.Bus == nil {

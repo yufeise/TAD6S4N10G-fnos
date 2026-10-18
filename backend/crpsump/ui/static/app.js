@@ -210,6 +210,7 @@
   }
 
   var fanBusy = false, fanPending = null; // 连点合并: 忙时只记最新目标, 当前请求完成后补发
+  var fanPollTimer = null; // 设置成功后延后拉新转速的定时器 (连点重置)
 
   function sendFan(body, doneMsg) {
     fanBusy = true;
@@ -228,6 +229,9 @@
           lastKnownMode = d.mode;
           applyModeUI(d.mode);
           msg.textContent = doneMsg(d);
+          // 后端 ~1.2s 后已刷新状态快照, 立即拉一次, 转速不再等 3s 轮询周期
+          clearTimeout(fanPollTimer);
+          fanPollTimer = setTimeout(poll, 1300);
         } else {
           msg.className = "err";
           if (lastKnownMode) applyModeUI(lastKnownMode);

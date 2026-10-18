@@ -55,9 +55,9 @@
     { key: "vout", label: "输出电压", unit: "V", fmt: "%.2f", w: "%.1f" },
     { key: "iout", label: "输出电流", unit: "A", fmt: "%.1f", w: "%.1f" },
     { key: "pin", label: "输入功率", unit: "W", fmt: "%.1f", w: "%.1f" },
+    { key: "pf", label: "功率因数", unit: "", fmt: "%.3f", w: "%.3f" },
     { key: "pout", label: "输出功率", unit: "W", fmt: "%.1f", w: "%.1f" },
     { key: "efficiency", label: "效率", unit: "%", fmt: "%.1f", w: "%.1f" },
-    { key: "pf", label: "功率因数", unit: "", fmt: "%.3f", w: "%.3f" },
     { key: "temp1", label: "温度 1", unit: "°C", fmt: "%.1f", w: "%.1f" },
     { key: "temp2", label: "温度 2", unit: "°C", fmt: "%.1f", w: "%.1f" },
   ];

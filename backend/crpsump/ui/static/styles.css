@@ -134,7 +134,7 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
   width: 100%; padding: 9px 10px; font-size: 14px; border: 1px solid var(--line);
   border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer;
 }
-.gpio-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.gpio-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .gpio-actions .export-btn { width: 100%; padding: 9px 0; text-align: center; }
 @media (min-width: 641px) {
   .gpio-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }

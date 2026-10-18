@@ -87,11 +87,11 @@
         <label for="sda-pin">PSDA 针脚</label>
         <select id="sda-pin"></select>
       </div>
-    </div>
-    <div class="gpio-actions">
-      <button id="gpio-save" class="export-btn">保存并应用</button>
-      <button id="gpio-detect" class="export-btn">自动探测</button>
-      <button id="dl-log" class="export-btn">查看日志</button>
+      <div class="gpio-actions">
+        <button id="gpio-save" class="export-btn">保存并应用</button>
+        <button id="gpio-detect" class="export-btn">自动探测</button>
+        <button id="dl-log" class="export-btn">查看日志</button>
+      </div>
     </div>
     <div class="gpio-tip">Pin19~22 四根 GPIO 已实测可双向。选择当前实际接到电源 PSCL / PSDA 的针脚后点“保存并应用”，后端立即切换并持久化，换线后改这里即可。自动探测会自动扫描 19~22 找到接线。</div>
     <div class="gpio-msg" id="gpio-msg"></div>

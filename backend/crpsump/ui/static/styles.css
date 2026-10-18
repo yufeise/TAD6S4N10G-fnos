@@ -126,7 +126,7 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 .mfr { font-size: 14px; line-height: 1.7; color: var(--text); word-break: break-all; }
 .mfr .k { color: var(--muted); }
 
-/* GPIO 配置: 两列针脚字段 + 一排按钮, 桌面/手机都整齐 */
+/* GPIO 配置: 手机端两列针脚字段 + 一排按钮; 桌面端单排紧凑 (字段与按钮同一行靠左) */
 .gpio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .gpio-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .gpio-field label { font-size: 12px; color: var(--muted); }
@@ -137,7 +137,11 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 .gpio-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
 .gpio-actions .export-btn { width: 100%; padding: 9px 0; text-align: center; }
 @media (min-width: 641px) {
-  .gpio-actions { display: flex; justify-content: flex-start; }
+  .gpio-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .gpio-field { flex-direction: row; align-items: center; gap: 8px; }
+  .gpio-field label { font-size: 13px; white-space: nowrap; }
+  .gpio-field select { width: auto; min-width: 96px; padding: 7px 10px; }
+  .gpio-actions { display: flex; justify-content: flex-start; gap: 8px; margin: 0 0 0 6px; }
   .gpio-actions .export-btn { width: auto; padding: 8px 16px; }
 }
 .gpio-tip { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; }

@@ -58,8 +58,8 @@
     { key: "pf", label: "功率因数", unit: "", fmt: "%.3f", w: "%.3f" },
     { key: "pout", label: "输出功率", unit: "W", fmt: "%.1f", w: "%.1f" },
     { key: "efficiency", label: "效率", unit: "%", fmt: "%.1f", w: "%.1f" },
-    { key: "temp1", label: "温度 1", unit: "°C", fmt: "%.1f", w: "%.1f" },
-    { key: "temp2", label: "温度 2", unit: "°C", fmt: "%.1f", w: "%.1f" },
+    { key: "temp1", label: "进风口温度", unit: "°C", fmt: "%.1f", w: "%.1f" },
+    { key: "temp2", label: "出风口温度", unit: "°C", fmt: "%.1f", w: "%.1f" },
   ];
 
   var fmt = function (v, spec) {
@@ -115,8 +115,6 @@
         v = data.iin_calc;
         extra = "由 PIN/VIN 推算";
       }
-      if (m.key === "temp1") extra = "内部温度";
-      if (m.key === "temp2") extra = "内部温度";
       setMetric(m.key, v, m.fmt, extra);
     });
     // 功率因数动态条: 宽度/颜色随负载实时变化

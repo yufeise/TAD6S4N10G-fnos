@@ -1,4 +1,4 @@
-// CRPS 电源监控 前端逻辑 (融合版: API 走 ../api/crps/)
+﻿// CRPS 电源监控 前端逻辑 (融合版: API 走 ../api/crps/)
 (function () {
   "use strict";
 
@@ -468,7 +468,7 @@
     enCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     enCtx.clearRect(0, 0, w, h);
     enBars = [];
-    var data = days.slice(-14);
+    var data = days.slice(-30);
     if (!data.length) {
       enCtx.fillStyle = cssVar("--muted"); enCtx.font = "13px sans-serif"; enCtx.textAlign = "center";
       enCtx.fillText("暂无数据（每 15 秒自动累计）", w / 2, h / 2);
@@ -479,7 +479,7 @@
     var maxWh = 10;
     data.forEach(function (d) { if (d.wh > maxWh) maxWh = d.wh; });
     maxWh = maxWh * 1.15;
-    var slot = iw / 14;                 // 固定 14 天槽位: 柱子从左侧依次排开, 不随天数均分整幅宽度
+    var slot = iw / 30;                 // 固定 30 天槽位: 柱子从左侧依次排开, 不随天数均分整幅宽度
     var bw = Math.min(44, slot * 0.6);
     // 网格 + Y 轴 kWh 刻度
     enCtx.strokeStyle = cssVar("--chart-grid"); enCtx.lineWidth = 1;

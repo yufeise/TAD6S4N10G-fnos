@@ -279,7 +279,7 @@
     var pct = parseInt(slider.value, 10);
     if (lastSent === pct) return;
     lastSent = pct;
-    postFan({ mode: "manual", pct: pct }, function (d) {
+    requestFan({ mode: "manual", pct: pct }, function (d) {
       return "已设置风扇占空比 " + d.pct + "%";
     });
   });

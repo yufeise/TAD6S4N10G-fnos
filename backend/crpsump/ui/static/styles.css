@@ -117,6 +117,10 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 }
 .slider-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .slider-row input[type=range] { flex: 1; accent-color: var(--primary); height: 32px; }
+@media (min-width: 641px) {
+  /* 桌面端滑条限宽, 不再拉满整行 */
+  .slider-row { max-width: 420px; }
+}
 .pct { font-size: 16px; font-weight: 600; min-width: 44px; text-align: right; }
 .fan-tip { font-size: 12px; color: var(--muted); margin-top: 10px; }
 .fan-msg { font-size: 13px; margin-top: 8px; min-height: 18px; }

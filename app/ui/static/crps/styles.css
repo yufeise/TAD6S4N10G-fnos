@@ -116,11 +116,19 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 .mfr { font-size: 14px; line-height: 1.7; color: var(--text); word-break: break-all; }
 .mfr .k { color: var(--muted); }
 
-.gpio-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.gpio-row label { font-size: 13px; color: var(--muted); }
-.gpio-row select {
-  padding: 8px 10px; font-size: 14px; border: 1px solid var(--line);
+/* GPIO 配置: 两列针脚字段 + 一排按钮, 桌面/手机都整齐 */
+.gpio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gpio-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.gpio-field label { font-size: 12px; color: var(--muted); }
+.gpio-field select {
+  width: 100%; padding: 9px 10px; font-size: 14px; border: 1px solid var(--line);
   border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer;
+}
+.gpio-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.gpio-actions .export-btn { width: 100%; padding: 9px 0; text-align: center; }
+@media (min-width: 641px) {
+  .gpio-actions { display: flex; justify-content: flex-start; }
+  .gpio-actions .export-btn { width: auto; padding: 8px 16px; }
 }
 .gpio-tip { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
 .gpio-msg { font-size: 13px; margin-top: 8px; min-height: 18px; }

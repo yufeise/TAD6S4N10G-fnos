@@ -81,11 +81,17 @@
 
   <section class="gpio-panel">
     <h2>🔌 GPIO 引脚配置</h2>
-    <div class="gpio-row">
-      <label for="scl-pin">PSCL 针脚</label>
-      <select id="scl-pin"></select>
-      <label for="sda-pin">PSDA 针脚</label>
-      <select id="sda-pin"></select>
+    <div class="gpio-grid">
+      <div class="gpio-field">
+        <label for="scl-pin">PSCL 针脚</label>
+        <select id="scl-pin"></select>
+      </div>
+      <div class="gpio-field">
+        <label for="sda-pin">PSDA 针脚</label>
+        <select id="sda-pin"></select>
+      </div>
+    </div>
+    <div class="gpio-actions">
       <button id="gpio-save" class="export-btn">保存并应用</button>
       <button id="gpio-detect" class="export-btn">自动探测</button>
       <button id="dl-log" class="export-btn">查看日志</button>

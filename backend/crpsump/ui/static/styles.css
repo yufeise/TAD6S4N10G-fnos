@@ -1,4 +1,4 @@
-/* CRPS 电源监控 — 融合版样式
+﻿/* CRPS 电源监控 — 融合版样式
  * 设计令牌与主应用 (app/ui/static/styles.css) 完全对齐: 同一套 CSS 变量、
  * 同一暗色主题块 ([data-theme="dark"]), 主题由 index.html 首帧引导同步。
  * 布局类名保持 CRPS 页面自有结构, 仅视觉风格统一。 */
@@ -47,7 +47,7 @@
 body {
   margin: 0;
   font-family: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
-  background: var(--bg);
+  background: var(--surface); /* 白底融入主应用内容区, 消除 iframe 灰色底框观感 */
   color: var(--text);
 }
 .app { padding: 16px 20px; } /* 全宽铺满, 与主应用其他页面一致 */
@@ -65,7 +65,7 @@ header h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
 .status-banner.ok .dot { background: var(--success); }
 .status-banner.err .dot { background: var(--danger); }
 
-/* 参数卡: 固定单行 10 列紧凑排布, 窄屏才回退换行 */
+/* 参数卡: 固定单行 10 列紧凑排布 (与主应用参数区一致的一排观感), 窄屏才回退换行 */
 .grid {
   display: grid; grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 8px;
@@ -186,6 +186,16 @@ footer { display: flex; justify-content: space-between; margin-top: 14px; color:
   font-size: 12px; line-height: 1.5; white-space: pre-wrap;
   word-break: break-all; background: var(--surface-soft);
   color: var(--text-body, var(--text)); font-family: Menlo, Consolas, monospace;
+}
+
+/* ---- 手机端 (竖屏) ---- */
+@media (max-width: 640px) {
+  .app { padding: 12px 12px; }
+  /* 耗电统计 4 卡固定 2x2, 避免窄屏 auto-fill 退化成一竖排 */
+  .energy-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ecard .val { font-size: 18px; }
+  /* 柱状图加高, 提升窄屏可读性 (JS 读 clientHeight 适配) */
+  #energy-chart-canvas { height: 180px; }
 }
 
 /* 融合模式下宿主 CSP (style-src 'self') 会忽略 HTML 行内 style 属性,

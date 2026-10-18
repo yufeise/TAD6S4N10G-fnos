@@ -188,6 +188,16 @@ footer { display: flex; justify-content: space-between; margin-top: 14px; color:
   color: var(--text-body, var(--text)); font-family: Menlo, Consolas, monospace;
 }
 
+/* ---- 手机端 (竖屏) ---- */
+@media (max-width: 640px) {
+  .app { padding: 12px 12px; }
+  /* 耗电统计 4 卡固定 2x2, 避免窄屏 auto-fill 退化成一竖排 */
+  .energy-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ecard .val { font-size: 18px; }
+  /* 柱状图加高, 提升窄屏可读性 (JS 读 clientHeight 适配) */
+  #energy-chart-canvas { height: 180px; }
+}
+
 /* 融合模式下宿主 CSP (style-src 'self') 会忽略 HTML 行内 style 属性,
    初始隐藏统一用 class; JS 动态 element.style 优先级高于类, 不受影响 */
 .hidden { display: none; }

@@ -1,4 +1,4 @@
-﻿// CRPS 电源监控 前端逻辑 (独立版: API 同源相对路径)
+﻿// CRPS 电源监控 前端逻辑 (融合版: API 走 api/)
 (function () {
   "use strict";
 
@@ -211,7 +211,10 @@
     applyModeUI(mode);
   }
 
-  function postFan(body, doneMsg) {
+  var fanBusy = false, fanPending = null; // 连点合并: 忙时只记最新目标, 当前请求完成后补发
+
+  function sendFan(body, doneMsg) {
+    fanBusy = true;
     msg.className = "";
     msg.textContent = "正在设置…";
     fetch("api/fan", {
@@ -221,22 +224,37 @@
     })
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        fanBusy = false;
         if (d.ok) {
           msg.className = "ok";
           lastKnownMode = d.mode;
-          applyModeUI(d.mode); // POST 成功立即切按钮, 不受保护期限制
+          applyModeUI(d.mode);
           msg.textContent = doneMsg(d);
         } else {
           msg.className = "err";
-          if (lastKnownMode) applyModeUI(lastKnownMode); // 失败回滚到轮询确认的模式
+          if (lastKnownMode) applyModeUI(lastKnownMode);
           msg.textContent = "设置失败: " + (d.error || "未知错误");
         }
+        if (fanPending) { var p = fanPending; fanPending = null; sendFan(p.body, p.doneMsg); }
       })
       .catch(function (e) {
+        fanBusy = false;
         msg.className = "err";
-        if (lastKnownMode) applyModeUI(lastKnownMode); // 失败回滚到轮询确认的模式
+        if (lastKnownMode) applyModeUI(lastKnownMode);
         msg.textContent = "设置失败: " + e.message;
+        if (fanPending) { var p2 = fanPending; fanPending = null; sendFan(p2.body, p2.doneMsg); }
       });
+  }
+
+  function requestFan(body, doneMsg) { // 点击入口: 乐观即时切 UI; 忙时只记最新目标, 避免请求堆积变慢
+    applyModeUI(body.mode);
+    if (fanBusy) {
+      fanPending = { body: body, doneMsg: doneMsg };
+      msg.className = "";
+      msg.textContent = "正在设置…";
+      return;
+    }
+    sendFan(body, doneMsg);
   }
 
   modeAuto.addEventListener("click", function () {
@@ -244,13 +262,13 @@
     // 实测光宝固件: FAN_COMMAND_1=10% 会触发恢复自动温控(约2700转低速档), 可软切回, 无需断电。
     // 注意: 自动转速下限随温度变化(低温约2600-2700, 高温固件会钳制在更高值如≥3100),
     // 提示不写死具体转速, 避免误导。其他值(0/0xFFFF/0x00FF)实测无效。
-    postFan({ mode: "auto" }, function () {
+    requestFan({ mode: "auto" }, function () {
       return "已切回电源自动温控";
     });
   });
   modeManual.addEventListener("click", function () {
     modeGuardUntil = Date.now() + 5000;
-    postFan({ mode: "manual", pct: parseInt(slider.value, 10) }, function (d) {
+    requestFan({ mode: "manual", pct: parseInt(slider.value, 10) }, function (d) {
       return "已切换：手动 " + d.pct + "%";
     });
   });
@@ -441,7 +459,7 @@
 
   function drawEnergyChart(days) {
     var dpr = window.devicePixelRatio || 1;
-    var w = enCv.clientWidth, h = 140;
+    var w = enCv.clientWidth, h = enCv.clientHeight || 140; // 高度读 CSS 实际值: 手机端媒体查询会加高画布
     if (!w) return; // 首帧容器未布局完成: 跳过本轮, 等 poll/resize 重绘, 避免 fallback 宽度拉伸变形
     if (enCv.width !== w * dpr || enCv.height !== h * dpr) {
       enCv.width = w * dpr;
@@ -456,7 +474,7 @@
       enCtx.fillText("暂无数据（每 15 秒自动累计）", w / 2, h / 2);
       return;
     }
-    var padL = 40, padR = 8, padT = 16, padB = 22;
+    var padL = w < 500 ? 30 : 40, padR = 8, padT = 16, padB = 22; // 手机端收紧左边距, 给柱子让宽度
     var iw = w - padL - padR, ih = h - padT - padB;
     var maxWh = 10;
     data.forEach(function (d) { if (d.wh > maxWh) maxWh = d.wh; });
@@ -476,7 +494,8 @@
     enCtx.fillText("kWh", w - 4, padT - 5); // 单位放右上角, 与左侧刻度数字完全错开
     enCtx.textAlign = "left";
     // 柱体 (今日=最新一根高亮)
-    var labelStep = Math.max(1, Math.ceil(data.length / 7));
+    // 日期标签稀疏化: 槽位太窄(手机 30 天)时每 10 天标一个, 避免文字重叠
+    var labelStep = slot < 12 ? 10 : Math.max(1, Math.ceil(data.length / 7));
     data.forEach(function (d, i) {
       var cx = padL + slot * (i + 0.5);
       var bh = d.wh > 0 ? Math.max(2, d.wh / maxWh * ih) : 0;

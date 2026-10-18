@@ -459,7 +459,7 @@
 
   function drawEnergyChart(days) {
     var dpr = window.devicePixelRatio || 1;
-    var w = enCv.clientWidth, h = 140;
+    var w = enCv.clientWidth, h = enCv.clientHeight || 140; // 高度读 CSS 实际值: 手机端媒体查询会加高画布
     if (!w) return; // 首帧容器未布局完成: 跳过本轮, 等 poll/resize 重绘, 避免 fallback 宽度拉伸变形
     if (enCv.width !== w * dpr || enCv.height !== h * dpr) {
       enCv.width = w * dpr;
@@ -474,7 +474,7 @@
       enCtx.fillText("暂无数据（每 15 秒自动累计）", w / 2, h / 2);
       return;
     }
-    var padL = 40, padR = 8, padT = 16, padB = 22;
+    var padL = w < 500 ? 30 : 40, padR = 8, padT = 16, padB = 22; // 手机端收紧左边距, 给柱子让宽度
     var iw = w - padL - padR, ih = h - padT - padB;
     var maxWh = 10;
     data.forEach(function (d) { if (d.wh > maxWh) maxWh = d.wh; });
@@ -494,7 +494,8 @@
     enCtx.fillText("kWh", w - 4, padT - 5); // 单位放右上角, 与左侧刻度数字完全错开
     enCtx.textAlign = "left";
     // 柱体 (今日=最新一根高亮)
-    var labelStep = Math.max(1, Math.ceil(data.length / 7));
+    // 日期标签稀疏化: 槽位太窄(手机 30 天)时每 10 天标一个, 避免文字重叠
+    var labelStep = slot < 12 ? 10 : Math.max(1, Math.ceil(data.length / 7));
     data.forEach(function (d, i) {
       var cx = padL + slot * (i + 0.5);
       var bh = d.wh > 0 ? Math.max(2, d.wh / maxWh * ih) : 0;

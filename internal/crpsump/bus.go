@@ -534,8 +534,11 @@ func (b *Bus) readBlock(cmd byte) []byte {
 
 // readMfr 读 MFR 字符串。GPIO bitbang 慢时序下 block read 尾部偶有噪声字节。
 // 待真机确认: 尾部噪声很可能是固件在 block read 末尾仍期待 PEC 字节所致(写路径启用了 PEC),
-// 读路径标准 SMBus block read 无 PEC。当前用延时复位 + 重试取"最长可打印串"防御。
+// 读路径标准 SMBus block read 无 PEC。防御策略: 重试 3 次取"多数票"——两次结果完全一致才
+// 采纳(噪声随机不会重复, 真值稳定), 全不一致时退回最长可打印串。
+// 注: 不能只取"最长"——混入噪声的串恰比干净串长, 会反向污染。
 func (b *Bus) readMfr(cmd byte) string {
+	seen := make(map[string]int, 3)
 	best := ""
 	for i := 0; i < 3; i++ {
 		time.Sleep(200 * time.Millisecond)
@@ -550,6 +553,13 @@ func (b *Bus) readMfr(cmd byte) string {
 			}
 		}
 		s := strings.Trim(strings.Trim(sb.String(), "#"), " ")
+		if s == "" {
+			continue
+		}
+		seen[s]++
+		if seen[s] >= 2 { // 两次读数一致: 认定真值, 提前返回
+			return s
+		}
 		if len(s) > len(best) {
 			best = s
 		}

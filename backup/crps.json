@@ -1,4 +1,4 @@
 {
-  "scl_pin": "Pin19",
-  "sda_pin": "Pin20"
+  "scl_pin": "Pin20",
+  "sda_pin": "Pin19"
 }
